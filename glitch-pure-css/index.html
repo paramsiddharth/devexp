@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Glitch</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		.centred {
+			width: 100%;
+			height: 100vh;
+			padding: 0;
+			margin: 0;
+			display: grid;
+			place-items: center;
+		}
+
+		@keyframes glitch-effect {
+			0% {
+				clip: rect(20px, 9999px, 40px, 0);
+			}
+			20% {
+				clip: rect(30px, 9999px, 25px, 0);
+			}
+			40% {
+				clip: rect(45px, 9999px, 66px, 0);
+			}
+			60% {
+				clip: rect(36px, 9999px, 80px, 0);
+			}
+			80% {
+				clip: rect(15px, 9999px, 21px, 0);
+			}
+			100% {
+				clip: rect(3px, 9999px, 8px, 0);
+			}
+		}
+
+		.glitch {
+			position: relative;
+			font-family: sans-serif;
+			font-size: 3em;
+			text-transform: uppercase;
+			text-shadow: 4px -4px 0 #fd5f00;
+			background: repeating-linear-gradient(45deg, #005792, #005792 1px, #fff 2px, #fff 3px);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
+
+		.glitch::before,
+		.glitch::after {
+			user-select: none;
+			content: attr(data-text);
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			background: #1f1855;
+			background: white;
+			color: #07cc53;
+			clip: rect(0, 900px, 0, 0);
+			overflow: hidden;
+
+		}
+
+		.glitch::before {
+			left: 7px;
+			text-shadow: 1px 0 #fd5f00;
+			animation: glitch-effect 1s infinite linear alternate-reverse;
+		}
+
+		.glitch::after {
+			left: 3px;
+			text-shadow: -1px 0 #fd5f00;
+			animation: glitch-effect 0.7s infinite linear alternate-reverse;
+		}
+	</style>
+</head>
+<body>
+	<div class='centred'>
+		<div>
+			<div data-text='I am Param,' class='glitch'>I am Param,</div>
+			<div data-text='everybody!' class='glitch'>everybody!</div>
+		</div>
+	</div>
+</body>
+</html>
