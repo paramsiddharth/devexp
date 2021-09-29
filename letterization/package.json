@@ -1,0 +1,18 @@
+{
+  "name": "letterization",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Param Siddharth <contact@paramsid.com> (http://www.paramsid.com/)",
+  "license": "ISC",
+  "dependencies": {
+    "@sentinel-one/font-mgmt": "^2.65.0",
+    "letterizejs": "^2.0.1",
+    "normalize.css": "^8.0.1"
+  }
+}
