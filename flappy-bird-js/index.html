@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flappy Bird</title>
+<style>
+	
+#canvas {
+	border: 8px solid black;
+	border-radius: 2px;
+}
+
+</style>
+
+</head>
+<body>
+<canvas id='canvas'></canvas>
+<script>
+const FPS = 60;
+const TIMEGAP = 1000 / FPS;
+
+const loadImg = img => new Promise(ok => img.onload = () => ok());
+const loadImgs = async imgs => await Promise.all(imgs.map(loadImg));
+const randInt = (low, high) => low + (Math.random() * high) % (high - low + 1);
+
+window.addEventListener('load', async () => {
+	const width = 500, height = 350;
+
+	/**
+	 * @type {HTMLCanvasElement}
+	 */
+	const cvs = document.getElementById('canvas');
+	const ctx = cvs.getContext('2d');
+
+	cvs.height = height;
+	cvs.width = width;
+
+	const bird = [
+		new Image(),
+		new Image(),
+		new Image(),
+		new Image()
+	];
+	bird[0].src = 'sprites/redbird-upflap.png';
+	bird[1].src = 'sprites/redbird-midflap.png';
+	bird[2].src = 'sprites/redbird-downflap.png';
+	bird[3].src = 'sprites/redbird-midflap.png';
+	const bg = new Image();
+	bg.src = 'sprites/background-day.png';
+	const pipeImage = new Image();
+	pipeImage.src = 'sprites/pipe-green.png';
+
+	await loadImgs([
+		bird[0],
+		bird[1],
+		bird[2],
+		bg,
+		pipeImage
+	]);
+
+	const g = 1.2;
+	const biW = 40, biH = 29;
+	const baW = 50, baH = 4 * height / 5;
+	const midGap = biH * 5;
+
+	var fc = 0;
+	var bgX = 0, bgY = 0;
+	var biX = width / 2, biY = height / 2;
+	var bi = 0;
+	var bv = 0;
+	var vel = 2.4;
+	var collision = false;
+
+	const barriers = [];
+
+	const draw = () => {
+		fc++;
+		fc %= 4 * FPS;
+
+		if (collision)
+			return;
+		setTimeout(() => requestAnimationFrame(draw), TIMEGAP);
+
+		ctx.resetTransform();
+		ctx.clearRect(0, 0, width, height);
+
+		ctx.drawImage(bg, bgX, bgY, width, height);
+		ctx.drawImage(bg, width + bgX, bgY, width, height);
+		bgX--;
+
+		barriers.forEach(pipe => {
+			if (pipe.x < -baW * 3)
+				barriers.shift();
+
+			ctx.drawImage(pipeImage, pipe.x, pipe.y, baW, baH);
+			ctx.translate((pipe.x + baW), pipe.y);
+			ctx.rotate(Math.PI);
+			ctx.translate(-(pipe.x + baW), -pipe.y);
+			ctx.drawImage(pipeImage, pipe.x + baW, pipe.y + midGap, baW, baH);
+			ctx.resetTransform();
+		});
+		if (fc % 120 == 0) {
+			barriers.push({
+				x: width,
+				y: randInt(height / 4, 3 * height / 4)
+			});
+		}
+
+		ctx.translate(biX, biY);
+		ctx.rotate(bv * Math.PI * 0.012);
+		ctx.translate(-biX, -biY);
+		/* // Debug
+		ctx.fillStyle = `black`;
+		ctx.fillRect(biX - biW / 2, biY - biH / 2, biW, biH); */
+		for (const pipe of barriers) {
+			if (
+				pipe.x <= biX + biW / 2
+				&& pipe.x + baW >= biX - biW / 2
+				&& (
+					pipe.y - midGap >= biY - biH / 2
+					|| pipe.y <= biY + biH / 2
+				)
+			) {
+				/* // Debug
+				ctx.fillStyle = `red`;
+				ctx.fillRect(biX - biW / 2, biY - biH / 2, biW, biH); */
+				collision = true;
+			}
+		}
+		barriers.forEach(pipe => pipe.x -= vel);
+		ctx.drawImage(bird[bi], biX - biW / 2, biY - biH / 2, biW, biH);
+		ctx.resetTransform();
+		if (fc % 4 == 0)
+			bi = (bi + 1) % bird.length;
+		
+		biY += bv;
+		bv += g;
+
+		if (bgX < -width)
+			bgX = 0;
+	};
+	
+	const jump = e => {
+		if (e)
+			e.preventDefault();
+
+		bv = -8.9 * g;
+	};
+
+	window.addEventListener('keypress', jump, true);
+	window.addEventListener('tap', jump, true);
+	window.addEventListener('click', jump, true);
+	
+	requestAnimationFrame(draw);
+});
+</script>
+</body>
+</html>
