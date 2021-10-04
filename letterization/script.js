@@ -1,5 +1,5 @@
 const config = {
-	type: 1
+	type: 3
 };
 
 const effects = {
@@ -37,25 +37,6 @@ const effects = {
 			[...document.querySelectorAll('.letter')].map(e => e.style.transform = null);
 		}
 	},
-	2: {
-		mouseAbove: e => {
-			const { target: elem } = e;
-			elem.style.color = 'white';
-			elem.style.backgroundColor = 'white';
-			elem.style.borderRadius = '50%';
-		},
-		apply: () => {
-			[...document.querySelectorAll('.letter')].map(e => e.addEventListener('mouseover', effects[2].mouseAbove));
-		},
-		remove: () => {
-			[...document.querySelectorAll('.letter')].map(e => {
-				e.removeEventListener('mouseover', effects[2].mouseAbove);
-				e.style.color = null;
-				e.style.backgroundColor = null;
-				e.style.borderRadius = null;
-			});
-		}
-	},
 	3: {
 		mouseMotion: e => {
 			const thresholdDistance = 180;
@@ -89,6 +70,41 @@ const effects = {
 		remove: () => {
 			window.removeEventListener('mousemove', effects[3].mouseMotion);
 			[...document.querySelectorAll('.letter')].map(e => e.style.color = null);
+		}
+	},
+	2: {
+		mouseAbove: e => {
+			const { target: elem } = e;
+			elem.style.color = 'white';
+			elem.style.backgroundColor = 'white';
+			elem.style.borderRadius = '50%';
+		},
+		apply: () => {
+			[...document.querySelectorAll('.letter')].map(e => e.addEventListener('mouseenter', effects[2].mouseAbove));
+		},
+		remove: () => {
+			[...document.querySelectorAll('.letter')].map(e => {
+				e.removeEventListener('mouseenter', effects[2].mouseAbove);
+				e.style.color = null;
+				e.style.backgroundColor = null;
+				e.style.borderRadius = null;
+			});
+		}
+	},
+	4: {
+		mouseAbove: e => {
+			const { target: elem } = e;
+			const clone = elem.cloneNode(true);
+			clone.textContent = clone.textContent.replace(/\s/g, '');
+			clone.classList.add('letter-clone');
+			elem.parentNode.insertBefore(clone, elem.nextSibling);
+		},
+		apply: () => {
+			[...document.querySelectorAll('.letter')].map(e => e.addEventListener('mouseenter', effects[4].mouseAbove));
+		},
+		remove: () => {
+			[...document.querySelectorAll('.letter')].map(e => e.removeEventListener('mouseenter', effects[4].mouseAbove));
+			[...document.querySelectorAll('.letter-clone')].forEach(e => e.remove());
 		}
 	}
 };
@@ -126,8 +142,9 @@ const render = () => {
 			window.addEventListener('mousemove', typeListener);
 		}
 		break;
-		case 2: {
-			effects[2].apply();
+		case 2:
+		case 4: {
+			effects[config.type].apply();
 		}
 		break;
 		default:
@@ -135,12 +152,18 @@ const render = () => {
 };
 
 window.addEventListener('load', () => {
+	const nav = document.querySelector('nav');
+	for (let i = 1; i <= Object.keys(effects).length; i++) {
+		const button = document.createElement('button');
+		button.setAttribute('data-value', i);
+		button.innerText = i;
+		nav.appendChild(button);
+	}
+
 	[...document.querySelectorAll('nav button')].forEach(btn => {
 		const id = Number(btn.attributes['data-value'].value);
 		btn.addEventListener('click', () => {
-			if (config.type === 2) {
-				effects[config.type].remove();
-			}
+			effects[config.type].remove();
 			config.type = id;
 			document.querySelector('nav button.active')?.classList.remove('active');
 			btn.classList.add('active');
