@@ -22,7 +22,7 @@ const effects = {
 				const distSquare = (x - posX) ** 2 + (y - posY) ** 2;
 				// e.style.transform = `translateY(-${distSquare}px)`;
 				if (distSquare < thresholdDistance ** 2) {
-					e.style.transform = `translateY(-${(thresholdDistance ** 2 - distSquare) * 0.00115}px)`;
+					e.style.transform = `translateY(-${(thresholdDistance ** 2 - distSquare) * 0.00004}em)`;
 				} else {
 					e.style.transform = null;
 				}
@@ -35,6 +35,25 @@ const effects = {
 		remove: () => {
 			window.removeEventListener('mousemove', effects[1].mouseMotion);
 			[...document.querySelectorAll('.letter')].map(e => e.style.transform = null);
+		}
+	},
+	2: {
+		mouseAbove: e => {
+			const { target: elem } = e;
+			elem.style.color = 'white';
+			elem.style.backgroundColor = 'white';
+			elem.style.borderRadius = '50%';
+		},
+		apply: () => {
+			[...document.querySelectorAll('.letter')].map(e => e.addEventListener('mouseover', effects[2].mouseAbove));
+		},
+		remove: () => {
+			[...document.querySelectorAll('.letter')].map(e => {
+				e.removeEventListener('mouseover', effects[2].mouseAbove);
+				e.style.color = null;
+				e.style.backgroundColor = null;
+				e.style.borderRadius = null;
+			});
 		}
 	},
 	3: {
@@ -57,7 +76,7 @@ const effects = {
 				if (
 					distSquare < thresholdDistance ** 2
 				) {
-					e.style.color = `#${randomColour()}`;
+					e.style.color = randomColour();
 				} else {
 					e.style.color = '#444';
 				}
@@ -107,6 +126,10 @@ const render = () => {
 			window.addEventListener('mousemove', typeListener);
 		}
 		break;
+		case 2: {
+			effects[2].apply();
+		}
+		break;
 		default:
 	}
 };
@@ -115,6 +138,9 @@ window.addEventListener('load', () => {
 	[...document.querySelectorAll('nav button')].forEach(btn => {
 		const id = Number(btn.attributes['data-value'].value);
 		btn.addEventListener('click', () => {
+			if (config.type === 2) {
+				effects[config.type].remove();
+			}
 			config.type = id;
 			document.querySelector('nav button.active')?.classList.remove('active');
 			btn.classList.add('active');
@@ -140,7 +166,7 @@ window.addEventListener('load', () => {
 });
 
 function randomColour() {
-	// return Math.floor(Math.random() * 16777215).toString(16);
+	// return '#' + Math.floor(Math.random() * 16777215).toString(16);
 
 	function sinToHhex(i, phase) {
 		var sin = Math.sin(Math.PI / size * 2 * i + phase);
@@ -155,5 +181,5 @@ function randomColour() {
 	const red   = sinToHhex(num, 0 * Math.PI * 2/3);
 	const blue  = sinToHhex(num, 1 * Math.PI * 2/3);
 	const green = sinToHhex(num, 2 * Math.PI * 2/3);
-	return `${red}${green}${blue}`;
+	return `#${red}${green}${blue}`;
 }
